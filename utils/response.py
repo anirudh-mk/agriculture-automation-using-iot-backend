@@ -4,15 +4,13 @@ from rest_framework.response import Response
 
 class CustomResponse:
 
-    def __init__(self, message=None, general_message=None, response=None):
+    def __init__(self, message={}, general_message=[], response={}):
         if not isinstance(general_message, list):
             general_message = [general_message]
-        if not isinstance(message, dict):
-            message = dict(message)
 
         self.message = {'general': general_message}
-        self.message = message.update(message)
-        self.response = {response}
+        self.message.update(message)
+        self.response = response
 
     def get_success_response(self):
         return Response(
