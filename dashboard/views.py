@@ -1,7 +1,11 @@
-from rest_framework.views import APIView
-from .models import User
-from utils.response import CustomResponse
 from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+
+from utils.response import CustomResponse
+from utils.permission import TokenGenerate
+
+from .models import User
 
 
 class CreateUserAPI(APIView):
@@ -44,3 +48,29 @@ class CreateUserAPI(APIView):
         return CustomResponse(
             general_message="user created successfully"
         ).get_success_response()
+
+
+class UserLoginAPI(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if email is None or password is None:
+            return CustomResponse(
+                general_message='email and password is required'
+            ).get_failure_response()
+
+        user = authenticate(request, email=email, password=password)
+
+        if user:
+            auth = TokenGenerate().generate(user)
+            return CustomResponse(
+                general_message="successfully login",
+                response=auth,
+            ).get_success_response()
+        else:
+            return CustomResponse(
+                general_message="login failed"
+            ).get_failure_response()
