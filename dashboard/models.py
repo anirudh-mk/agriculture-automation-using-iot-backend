@@ -11,8 +11,16 @@ class User(AbstractUser):
     email = models.CharField(unique=True, max_length=200)
     phone = models.CharField(unique=True, max_length=15, blank=True, null=True)
     password = models.CharField(max_length=200, blank=True, null=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    USERNAME_FIELD = 'email'
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    @classmethod
+    def email_exists(cls, email):
+        return cls.objects.filter(email=email).exists()
 
     class Meta:
         db_table = 'user'
