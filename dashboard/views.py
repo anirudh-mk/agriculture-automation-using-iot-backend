@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from utils.response import CustomResponse
 from utils.permission import TokenGenerate
 
-from .models import User, Farm
+from .models import User, Farm, UserFarmLink
 
 
 class CreateUserAPI(APIView):
@@ -80,10 +80,18 @@ class FarmCreateAPI(APIView):
     def post(self, request):
         name = request.data.get("name")
         description = request.data.get("description")
+        user_id = request.data.get("user_id")
 
-        Farm.objects.create(
+        user = User.objects.filter(id=user_id).first()
+
+        farm = Farm.objects.create(
             name=name,
             description=description,
+        )
+
+        UserFarmLink.objects.create(
+            farm=farm,
+            user=user
         )
 
         return CustomResponse(
