@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from utils.response import CustomResponse
 from utils.permission import TokenGenerate
 
-from .models import User
+from .models import User, Farm
 
 
 class CreateUserAPI(APIView):
@@ -74,3 +74,18 @@ class UserLoginAPI(APIView):
             return CustomResponse(
                 general_message="login failed"
             ).get_failure_response()
+
+
+class FarmCreateAPI(APIView):
+    def post(self, request):
+        name = request.data.get("name")
+        description = request.data.get("description")
+
+        Farm.objects.create(
+            name=name,
+            description=description,
+        )
+
+        return CustomResponse(
+            general_message="farm created successfully"
+        ).get_success_response()
