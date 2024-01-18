@@ -44,3 +44,12 @@ class UserFarmLink(models.Model):
 
     class Meta:
         db_table = 'user_farm_link'
+
+
+class Vegetable(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
+    name = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'vegetable'
