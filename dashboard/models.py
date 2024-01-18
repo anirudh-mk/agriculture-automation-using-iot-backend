@@ -34,3 +34,13 @@ class Farm(models.Model):
 
     class Meta:
         db_table = 'farm'
+
+
+class UserFarmLink(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
+    farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='user_farm_link_farm')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_farm_link_user')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_farm_link'
