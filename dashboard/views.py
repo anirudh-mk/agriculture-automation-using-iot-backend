@@ -97,3 +97,11 @@ class FarmCreateAPI(APIView):
         return CustomResponse(
             general_message="farm created successfully"
         ).get_success_response()
+
+
+class ListAllUsersAPI(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        user = User.objects.all().values()
+        return CustomResponse(response=user).get_success_response()
