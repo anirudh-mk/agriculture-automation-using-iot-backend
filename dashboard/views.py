@@ -108,5 +108,5 @@ class ListAllUsersAPI(APIView):
             'username',
             farm_name=F("user_farm_link_user__farm__name"),
             location=F('user_farm_link_user__farm__location')
-        )
+        ).order_by('username')
         return CustomResponse(response=user).get_success_response()
