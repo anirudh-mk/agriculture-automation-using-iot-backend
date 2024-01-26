@@ -1,3 +1,4 @@
+from django.db.models import Q, F
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -103,5 +104,9 @@ class ListAllUsersAPI(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        user = User.objects.all().values()
+        user = User.objects.values(
+            'username',
+            farm_name=F("user_farm_link_user__farm__name"),
+            location=F('user_farm_link_user__farm__location')
+        )
         return CustomResponse(response=user).get_success_response()
