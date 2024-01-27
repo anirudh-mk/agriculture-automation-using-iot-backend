@@ -126,10 +126,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'dashboard.User'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     "exp://192.168.116.82:8081"
+# ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 from pathlib import Path
