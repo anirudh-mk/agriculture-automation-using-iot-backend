@@ -51,6 +51,10 @@ class UserFarmLink(models.Model):
 class Vegetable(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
     name = models.CharField(max_length=200)
+    n = models.CharField(max_length=20, default=0)
+    p = models.CharField(max_length=20, default=0)
+    k = models.CharField(max_length=20, default=0)
+    time_required = models.CharField(max_length=100, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
