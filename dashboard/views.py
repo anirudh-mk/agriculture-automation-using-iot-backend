@@ -77,6 +77,29 @@ class UserLoginAPI(APIView):
             ).get_failure_response()
 
 
+class FarmCreateAPI(APIView):
+    def post(self, request):
+        name = request.data.get("name")
+        description = request.data.get("description")
+        user_id = request.data.get("user_id")
+
+        user = User.objects.filter(id=user_id).first()
+
+        farm = Farm.objects.create(
+            name=name,
+            description=description,
+        )
+
+        UserFarmLink.objects.create(
+            farm=farm,
+            user=user
+        )
+
+        return CustomResponse(
+            general_message="farm created successfully"
+        ).get_success_response()
+
+
 class ListAllUsersAPI(APIView):
     permission_classes = (AllowAny,)
 
@@ -110,32 +133,26 @@ class UserDetailsAPI(APIView):
         return CustomResponse(response=user_details).get_success_response()
 
 
-class FarmCreateAPI(APIView):
-    def post(self, request):
-        name = request.data.get("name")
-        description = request.data.get("description")
-        user_id = request.data.get("user_id")
-
-        user = User.objects.filter(id=user_id).first()
-
-        farm = Farm.objects.create(
-            name=name,
-            description=description,
-        )
-
-        UserFarmLink.objects.create(
-            farm=farm,
-            user=user
-        )
-
-        return CustomResponse(
-            general_message="farm created successfully"
-        ).get_success_response()
-
-
 class ListAllVegetablesAPI(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
         vegetable_list = Vegetable.objects.values()
         return CustomResponse(response=vegetable_list).get_success_response()
+
+
+class UserFarmListAPI(APIView):
+    authentication_classes = [CustomizePermission]
+
+    def get(self, request):
+        user_id = request.user.id
+
+        if user_id is None:
+            return CustomResponse(general_message='something went wrong').get_failure_response()
+
+        user_farm_list = UserFarmLink.objects.filter(user=user_id).values(
+            'id',
+            farm_name=F('farm__name')
+        )
+
+        return CustomResponse(response=user_farm_list).get_success_response()
