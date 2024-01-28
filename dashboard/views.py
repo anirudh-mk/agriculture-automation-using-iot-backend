@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 
 from utils.response import CustomResponse
-from utils.permission import TokenGenerate
+from utils.permission import TokenGenerate, CustomizePermission
 
 from .models import User, Farm, UserFarmLink
 
@@ -110,3 +110,24 @@ class ListAllUsersAPI(APIView):
             location=F('user_farm_link_user__farm__location')
         ).order_by('username')
         return CustomResponse(response=user).get_success_response()
+
+
+class UserDetailsAPI(APIView):
+    authentication_classes = [CustomizePermission]
+
+    def get(self, request):
+        user_id = request.user.id
+
+        if user_id is None:
+            return CustomResponse(general_message='User does not exist').get_failure_response()
+
+        user_details = User.objects.filter(id=user_id).values(
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'phone',
+            'profile_pic',
+        )
+
+        return CustomResponse(response=user_details).get_success_response()
