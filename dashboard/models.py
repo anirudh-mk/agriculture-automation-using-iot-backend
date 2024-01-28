@@ -27,6 +27,19 @@ class User(AbstractUser):
         db_table = 'user'
 
 
+class Vegetable(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
+    name = models.CharField(max_length=200)
+    n = models.CharField(max_length=20, default=0)
+    p = models.CharField(max_length=20, default=0)
+    k = models.CharField(max_length=20, default=0)
+    time_required = models.CharField(max_length=100, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'vegetable'
+
+
 class Farm(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
     name = models.CharField(max_length=200)
@@ -48,14 +61,11 @@ class UserFarmLink(models.Model):
         db_table = 'user_farm_link'
 
 
-class Vegetable(models.Model):
+class FarmVegetableLink(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
-    name = models.CharField(max_length=200)
-    n = models.CharField(max_length=20, default=0)
-    p = models.CharField(max_length=20, default=0)
-    k = models.CharField(max_length=20, default=0)
-    time_required = models.CharField(max_length=100, default=0)
+    farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='farm_vegetable_link_farm')
+    vegetable = models.ForeignKey(Vegetable, on_delete=models.CASCADE, related_name='farm_vegetable_link_vegetable')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'vegetable'
+        db_table = 'farm_vegetable_link'
