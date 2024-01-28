@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from utils.response import CustomResponse
 from utils.permission import TokenGenerate, CustomizePermission
 
-from .models import User, Farm, UserFarmLink
+from .models import User, Farm, UserFarmLink, Vegetable
 
 
 class CreateUserAPI(APIView):
@@ -104,12 +104,12 @@ class ListAllUsersAPI(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        user = User.objects.values(
+        user_list = User.objects.values(
             'username',
             farm_name=F("user_farm_link_user__farm__name"),
             location=F('user_farm_link_user__farm__location')
         ).order_by('username')
-        return CustomResponse(response=user).get_success_response()
+        return CustomResponse(response=user_list).get_success_response()
 
 
 class UserDetailsAPI(APIView):
@@ -131,3 +131,11 @@ class UserDetailsAPI(APIView):
         )
 
         return CustomResponse(response=user_details).get_success_response()
+
+
+class ListAllVegetablesAPI(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        vegetable_list = Vegetable.objects.values()
+        return CustomResponse(response=vegetable_list).get_success_response()
