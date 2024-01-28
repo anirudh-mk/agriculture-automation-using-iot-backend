@@ -77,29 +77,6 @@ class UserLoginAPI(APIView):
             ).get_failure_response()
 
 
-class FarmCreateAPI(APIView):
-    def post(self, request):
-        name = request.data.get("name")
-        description = request.data.get("description")
-        user_id = request.data.get("user_id")
-
-        user = User.objects.filter(id=user_id).first()
-
-        farm = Farm.objects.create(
-            name=name,
-            description=description,
-        )
-
-        UserFarmLink.objects.create(
-            farm=farm,
-            user=user
-        )
-
-        return CustomResponse(
-            general_message="farm created successfully"
-        ).get_success_response()
-
-
 class ListAllUsersAPI(APIView):
     permission_classes = (AllowAny,)
 
@@ -131,6 +108,29 @@ class UserDetailsAPI(APIView):
         )
 
         return CustomResponse(response=user_details).get_success_response()
+
+
+class FarmCreateAPI(APIView):
+    def post(self, request):
+        name = request.data.get("name")
+        description = request.data.get("description")
+        user_id = request.data.get("user_id")
+
+        user = User.objects.filter(id=user_id).first()
+
+        farm = Farm.objects.create(
+            name=name,
+            description=description,
+        )
+
+        UserFarmLink.objects.create(
+            farm=farm,
+            user=user
+        )
+
+        return CustomResponse(
+            general_message="farm created successfully"
+        ).get_success_response()
 
 
 class ListAllVegetablesAPI(APIView):
