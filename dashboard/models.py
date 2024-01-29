@@ -45,7 +45,7 @@ class Farm(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=1000, null=True, blank=True)
-    location = models.CharField(max_length=200, null=True, blank=True)
+    location = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
