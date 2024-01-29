@@ -35,3 +35,17 @@ class FarmCreateSerializer(serializers.ModelSerializer):
                 user_id=user_id
             )
         return farm
+
+
+class ListAllUsersSerializer(serializers.ModelSerializer):
+    farm_name = serializers.CharField(source='user_farm_link.farm.name')
+    location = serializers.CharField(source='user_farm_link.farm.location')
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'farm_name',
+            'location'
+        ]
