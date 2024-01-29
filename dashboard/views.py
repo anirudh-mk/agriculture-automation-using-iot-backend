@@ -7,7 +7,7 @@ from utils.response import CustomResponse
 from utils.permission import TokenGenerate, CustomizePermission
 
 from .models import User, Farm, UserFarmLink, Vegetable
-from .serializer import UserCreateSerializer, FarmCreateSerializer
+from .serializer import UserCreateSerializer, FarmCreateSerializer, ListAllUsersSerializer
 
 
 class CreateUserAPI(APIView):
@@ -84,12 +84,15 @@ class ListAllUsersAPI(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        user_list = User.objects.values(
-            'username',
-            farm_name=F("user_farm_link_user__farm__name"),
-            location=F('user_farm_link_user__farm__location')
-        ).order_by('username')
-        return CustomResponse(response=user_list).get_success_response()
+        user = User.objects.all()
+        serializer = ListAllUsersSerializer(user, many=True)
+
+        # user_list = User.objects.values(
+        #     'username',
+        #     farm_name=F("user_farm_link_user__farm__name"),
+        #     location=F('user_farm_link_user__farm__location')
+        # ).order_by('username')
+        return CustomResponse(response=serializer.data).get_success_response()
 
 
 class UserDetailsAPI(APIView):
