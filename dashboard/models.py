@@ -7,11 +7,12 @@ class User(AbstractUser):
     date_joined = None
 
     id = models.CharField(primary_key=True, default=uuid.uuid4(), max_length=36)
+    first_name = models.CharField(max_length=200)
     username = models.CharField(unique=True, max_length=100)
     profile_pic = models.ImageField(max_length=200, upload_to='user/', null=True, blank=True)
     email = models.CharField(unique=True, max_length=200)
-    phone = models.CharField(unique=True, max_length=15, blank=True, null=True)
-    password = models.CharField(max_length=200, blank=True, null=True)
+    phone = models.CharField(unique=True, max_length=15)
+    password = models.CharField(max_length=200)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
