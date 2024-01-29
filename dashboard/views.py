@@ -7,7 +7,7 @@ from utils.response import CustomResponse
 from utils.permission import TokenGenerate, CustomizePermission
 
 from .models import User, Farm, UserFarmLink, Vegetable
-from .serializer import UserCreateSerializer
+from .serializer import UserCreateSerializer, FarmCreateSerializer
 
 
 class CreateUserAPI(APIView):
@@ -58,25 +58,26 @@ class UserLoginAPI(APIView):
 
 class FarmCreateAPI(APIView):
     def post(self, request):
-        name = request.data.get("name")
-        description = request.data.get("description")
-        user_id = request.data.get("user_id")
+        if request.data.get('user_id') is None:
+            return CustomResponse(
+                response={"user_id": ["This field is required."]}
 
-        user = User.objects.filter(id=user_id).first()
+            ).get_failure_response()
 
-        farm = Farm.objects.create(
-            name=name,
-            description=description,
+        serializer = FarmCreateSerializer(
+            data=request.data
         )
 
-        UserFarmLink.objects.create(
-            farm=farm,
-            user=user
-        )
+        if serializer.is_valid():
+            serializer.save()
+
+            return CustomResponse(
+                general_message='Farm created successfully'
+            ).get_success_response()
 
         return CustomResponse(
-            general_message="farm created successfully"
-        ).get_success_response()
+            response=serializer.errors
+        ).get_failure_response()
 
 
 class ListAllUsersAPI(APIView):
