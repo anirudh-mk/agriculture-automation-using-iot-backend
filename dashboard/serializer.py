@@ -1,19 +1,13 @@
 import uuid
 
 from rest_framework import serializers
-from .models import User
+from .models import User, Farm, UserFarmLink
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = [
-            'first_name',
-            'username',
-            'email',
-            'phone',
-            'password',
-        ]
+        fields = []
 
     def create(self, validated_data):
         validated_data['id'] = uuid.uuid4()
@@ -23,3 +17,21 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if password == self.initial_data.get('confirm_password'):
             return password
         raise serializers.ValidationError('Passwords does not match')
+
+
+class FarmCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Farm
+        fields = ['name']
+
+    def create(self, validated_data):
+        validated_data['id'] = (uuid.uuid4())
+        farm = Farm.objects.create(**validated_data)
+        if farm:
+            user_id = self.initial_data.get('user_id')
+            UserFarmLink.objects.create(
+                id=uuid.uuid4(),
+                farm=farm,
+                user_id=user_id
+            )
+        return farm
