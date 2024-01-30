@@ -1,7 +1,7 @@
 import uuid
-
+from django.db.models import F, Value
 from rest_framework import serializers
-from .models import User, Farm, UserFarmLink
+from .models import User, Farm, UserFarmLink, Vegetable
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -49,3 +49,34 @@ class ListAllUsersSerializer(serializers.ModelSerializer):
             'username',
             'profile_pic'
         ]
+
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    farms = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'phone',
+            'profile_pic',
+            'farms'
+        ]
+
+    def get_farms(self, obj):
+        vegetable = Vegetable.objects.filter(
+            farm_vegetable_link_vegetable__farm__user_farm_link_farm__user=obj
+        ).values_list('name', 'n', 'p', 'k', 'time_required')
+        farm = Farm.objects.filter(
+            user_farm_link_farm__user=obj
+        ).values(
+            'id',
+            'name',
+            'description',
+            'location',
+        ).annotate(vegetable)
+
+        return farm
