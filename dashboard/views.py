@@ -7,7 +7,7 @@ from utils.response import CustomResponse
 from utils.permission import TokenGenerate, CustomizePermission
 
 from .models import User, Farm, UserFarmLink, Vegetable
-from .serializer import UserCreateSerializer, FarmCreateSerializer, ListAllUsersSerializer
+from .serializer import UserCreateSerializer, FarmCreateSerializer, ListAllUsersSerializer, UserDetailsSerializer
 
 
 class CreateUserAPI(APIView):
@@ -60,7 +60,9 @@ class FarmCreateAPI(APIView):
     def post(self, request):
         if request.data.get('user_id') is None:
             return CustomResponse(
-                response={"user_id": ["This field is required."]}
+                response={
+                    "user_id": ["This field is required."]
+                }
 
             ).get_failure_response()
 
@@ -85,14 +87,13 @@ class ListAllUsersAPI(APIView):
 
     def get(self, request):
         user = User.objects.all()
-        serializer = ListAllUsersSerializer(user, many=True)
-
-        # user_list = User.objects.values(
-        #     'username',
-        #     farm_name=F("user_farm_link_user__farm__name"),
-        #     location=F('user_farm_link_user__farm__location')
-        # ).order_by('username')
-        return CustomResponse(response=serializer.data).get_success_response()
+        serializer = ListAllUsersSerializer(
+            user,
+            many=True
+        )
+        return CustomResponse(
+            response=serializer.data
+        ).get_success_response()
 
 
 class UserDetailsAPI(APIView):
@@ -104,16 +105,10 @@ class UserDetailsAPI(APIView):
         if user_id is None:
             return CustomResponse(general_message='User does not exist').get_failure_response()
 
-        user_details = User.objects.filter(id=user_id).values(
-            'first_name',
-            'last_name',
-            'username',
-            'email',
-            'phone',
-            'profile_pic',
-        )
+        user = User.objects.filter(id=user_id).first()
+        serializer = UserDetailsSerializer(user, many=False)
 
-        return CustomResponse(response=user_details).get_success_response()
+        return CustomResponse(response=serializer.data).get_success_response()
 
 
 class ListAllVegetablesAPI(APIView):
@@ -121,7 +116,9 @@ class ListAllVegetablesAPI(APIView):
 
     def get(self, request):
         vegetable_list = Vegetable.objects.values()
-        return CustomResponse(response=vegetable_list).get_success_response()
+        return CustomResponse(
+            response=vegetable_list
+        ).get_success_response()
 
 
 class UserFarmListAPI(APIView):
