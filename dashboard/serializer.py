@@ -67,9 +67,6 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         ]
 
     def get_farms(self, obj):
-        vegetable = Vegetable.objects.filter(
-            farm_vegetable_link_vegetable__farm__user_farm_link_farm__user=obj
-        ).values_list('name', 'n', 'p', 'k', 'time_required')
         farm = Farm.objects.filter(
             user_farm_link_farm__user=obj
         ).values(
@@ -77,6 +74,20 @@ class UserDetailsSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'location',
-        ).annotate(vegetable)
+        )
+
+        for data in farm:
+            vegetable = Vegetable.objects.filter(
+                farm_vegetable_link_vegetable__farm_id=data['id']
+            ).values(
+                'id',
+                'name',
+                'n',
+                'p',
+                'k',
+                'time_required'
+            )
+
+            data['vegetable'] = vegetable[0]
 
         return farm
