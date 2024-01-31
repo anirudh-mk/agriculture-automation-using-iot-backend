@@ -127,3 +127,21 @@ class UserFarmListSerializer(serializers.ModelSerializer):
     def get_days_remaining(self, obj):
 
         return obj.farm.farm_vegetable_link_farm.first().vegetable.time_required
+
+
+class VegetableCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vegetable
+        fields = [
+            'name',
+            'n',
+            'p',
+            'k',
+            'time_required',
+        ]
+
+    def create(self, validate_data):
+        validate_data['id'] = uuid.uuid4()
+        return Vegetable.objects.create(**validate_data)
+
