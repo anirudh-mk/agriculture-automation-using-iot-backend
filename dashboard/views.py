@@ -12,7 +12,8 @@ from .serializer import (UserCreateSerializer,
                          ListAllUsersSerializer,
                          UserDetailsSerializer,
                          ListAllVegetablesSerializer,
-                         UserFarmListSerializer)
+                         UserFarmListSerializer,
+                         VegetableCreateSerializer)
 
 
 class CreateUserAPI(APIView):
@@ -145,3 +146,20 @@ class UserFarmListAPI(APIView):
         serializer = UserFarmListSerializer(user_farm_link, many=True)
 
         return CustomResponse(response=serializer.data).get_success_response()
+
+
+class VegetableCreateAPI(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+
+        serializer = VegetableCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return CustomResponse(
+                general_message='Vegetable created successfully'
+            ).get_success_response()
+
+        return CustomResponse(
+            response=serializer.errors
+        ).get_failure_response()

@@ -8,5 +8,6 @@ urlpatterns = [
     path('user/details/', views.UserDetailsAPI.as_view()),
     path('user/farm-list/', views.UserFarmListAPI.as_view()),
     path('farm/create/', views.FarmCreateAPI.as_view()),
+    path('vegetable/create/', views.VegetableCreateAPI.as_view()),
     path('vegetable/list/', views.ListAllVegetablesAPI.as_view()),
 ]
