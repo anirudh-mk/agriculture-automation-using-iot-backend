@@ -67,6 +67,7 @@ class FarmVegetableLink(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='farm_vegetable_link_farm')
     vegetable = models.ForeignKey(Vegetable, on_delete=models.CASCADE, related_name='farm_vegetable_link_vegetable')
+    is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
