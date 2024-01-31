@@ -11,7 +11,8 @@ from .serializer import (UserCreateSerializer,
                          FarmCreateSerializer,
                          ListAllUsersSerializer,
                          UserDetailsSerializer,
-                         ListAllVegetablesSerializer)
+                         ListAllVegetablesSerializer,
+                         UserFarmListSerializer)
 
 
 class CreateUserAPI(APIView):
@@ -135,11 +136,12 @@ class UserFarmListAPI(APIView):
         user_id = request.user.id
 
         if user_id is None:
-            return CustomResponse(general_message='something went wrong').get_failure_response()
+            return CustomResponse(
+                general_message='something went wrong'
+            ).get_failure_response()
 
-        user_farm_list = UserFarmLink.objects.filter(user=user_id).values(
-            'id',
-            farm_name=F('farm__name')
-        )
+        user_farm_link = UserFarmLink.objects.filter(user=user_id).all()
 
-        return CustomResponse(response=user_farm_list).get_success_response()
+        serializer = UserFarmListSerializer(user_farm_link, many=True)
+
+        return CustomResponse(response=serializer.data).get_success_response()
