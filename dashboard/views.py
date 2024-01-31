@@ -7,7 +7,11 @@ from utils.response import CustomResponse
 from utils.permission import TokenGenerate, CustomizePermission
 
 from .models import User, Farm, UserFarmLink, Vegetable
-from .serializer import UserCreateSerializer, FarmCreateSerializer, ListAllUsersSerializer, UserDetailsSerializer
+from .serializer import (UserCreateSerializer,
+                         FarmCreateSerializer,
+                         ListAllUsersSerializer,
+                         UserDetailsSerializer,
+                         ListAllVegetablesSerializer)
 
 
 class CreateUserAPI(APIView):
@@ -103,7 +107,9 @@ class UserDetailsAPI(APIView):
         user_id = request.user.id
 
         if user_id is None:
-            return CustomResponse(general_message='User does not exist').get_failure_response()
+            return CustomResponse(
+                general_message='User does not exist'
+            ).get_failure_response()
 
         user = User.objects.filter(id=user_id).first()
         serializer = UserDetailsSerializer(user, many=False)
@@ -115,9 +121,10 @@ class ListAllVegetablesAPI(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        vegetable_list = Vegetable.objects.values()
+        vegetable = Vegetable.objects.all()
+        serializer = ListAllVegetablesSerializer(vegetable, many=True)
         return CustomResponse(
-            response=vegetable_list
+            response=serializer.data
         ).get_success_response()
 
 
