@@ -91,3 +91,17 @@ class UserDetailsSerializer(serializers.ModelSerializer):
             data['vegetable'] = vegetable[0]
 
         return farm
+
+
+class ListAllVegetablesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vegetable
+        fields = [
+            'id',
+            'name',
+            'n',
+            'p',
+            'k',
+            'time_required',
+        ]
