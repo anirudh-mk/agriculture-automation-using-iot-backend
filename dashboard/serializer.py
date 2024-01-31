@@ -1,7 +1,7 @@
 import uuid
 from django.db.models import F, Value
 from rest_framework import serializers
-from .models import User, Farm, UserFarmLink, Vegetable
+from .models import User, Farm, UserFarmLink, Vegetable, FarmVegetableLink
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -105,3 +105,25 @@ class ListAllVegetablesSerializer(serializers.ModelSerializer):
             'k',
             'time_required',
         ]
+
+
+class UserFarmListSerializer(serializers.ModelSerializer):
+    farm_name = serializers.CharField(source='farm.name')
+    vegetable_name = serializers.SerializerMethodField()
+    days_remaining = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserFarmLink
+        fields = [
+            'id',
+            'farm_name',
+            'vegetable_name',
+            'days_remaining',
+        ]
+
+    def get_vegetable_name(self, obj):
+        return obj.farm.farm_vegetable_link_farm.first().vegetable.name
+
+    def get_days_remaining(self, obj):
+
+        return obj.farm.farm_vegetable_link_farm.first().vegetable.time_required
