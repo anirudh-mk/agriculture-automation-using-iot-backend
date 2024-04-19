@@ -54,7 +54,7 @@ class UserLoginAPI(APIView):
             auth = TokenGenerate().generate(user)
             return CustomResponse(
                 general_message="successfully login",
-                response=auth,
+                response=[auth, {"is_admin": user.is_admin}],
             ).get_success_response()
         else:
             return CustomResponse(
@@ -77,10 +77,10 @@ class FarmCreateAPI(APIView):
         )
 
         if serializer.is_valid():
-            serializer.save()
-
+            farm = serializer.save()
             return CustomResponse(
-                general_message='Farm created successfully'
+                general_message='Farm created successfully',
+                response=farm.id
             ).get_success_response()
 
         return CustomResponse(
@@ -103,11 +103,10 @@ class ListAllUsersAPI(APIView):
 
 
 class UserDetailsAPI(APIView):
-    authentication_classes = [CustomizePermission]
+    permission_classes = (AllowAny,)
 
-    def get(self, request):
-        user_id = request.user.id
-
+    def post(self, request):
+        user_id = request.data.get('user_id')
         if user_id is None:
             return CustomResponse(
                 general_message='User does not exist'
@@ -163,3 +162,11 @@ class VegetableCreateAPI(APIView):
         return CustomResponse(
             response=serializer.errors
         ).get_failure_response()
+
+
+# class FarmLiveDataAPI(APIView):
+#     authentication_classes = [CustomizePermission]
+#
+#     def get(self, request):
+#         farm_id = request.data.get("farm_id")
+

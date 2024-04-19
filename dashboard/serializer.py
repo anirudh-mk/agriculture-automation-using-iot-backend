@@ -7,10 +7,17 @@ from .models import User, Farm, UserFarmLink, Vegetable, FarmVegetableLink
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = []
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone"
+
+        ]
 
     def create(self, validated_data):
         validated_data['id'] = uuid.uuid4()
+        validated_data['username'] = validated_data['email  ']
         return User.objects.create_user(**validated_data)
 
     def validate_password(self, password):
@@ -77,18 +84,19 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         )
 
         for data in farm:
-            vegetable = Vegetable.objects.filter(
-                farm_vegetable_link_vegetable__farm_id=data['id']
-            ).values(
-                'id',
-                'name',
-                'n',
-                'p',
-                'k',
-                'time_required'
-            )
+            if FarmVegetableLink.objects.filter(farm_id=data['id']):
+                vegetable = Vegetable.objects.filter(
+                    farm_vegetable_link_vegetable__farm_id=data['id']
+                ).values(
+                    'id',
+                    'name',
+                    'n',
+                    'p',
+                    'k',
+                    'time_required'
+                )
 
-            data['vegetable'] = vegetable[0]
+                data['vegetable'] = vegetable[0]
 
         return farm
 
