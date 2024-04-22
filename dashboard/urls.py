@@ -10,4 +10,8 @@ urlpatterns = [
     path('farm/create/', views.FarmCreateAPI.as_view()),
     path('vegetable/create/', views.VegetableCreateAPI.as_view()),
     path('vegetable/list/', views.ListAllVegetablesAPI.as_view()),
+    path('vegetable/details/', views.VegetableDetails.as_view()),
+    path('user/basic-details/', views.UserBasicDetails.as_view()),
+    path('farm/vegetable-create/', views.FarmVegetableCreate.as_view()),
+    path('npk/', views.NPK.as_view())
 ]

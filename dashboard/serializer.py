@@ -11,25 +11,29 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
-            "phone"
-
+            "phone",
+            "password"
         ]
 
     def create(self, validated_data):
         validated_data['id'] = uuid.uuid4()
-        validated_data['username'] = validated_data['email  ']
+        validated_data['username'] = validated_data['email']
         return User.objects.create_user(**validated_data)
 
-    def validate_password(self, password):
-        if password == self.initial_data.get('confirm_password'):
-            return password
-        raise serializers.ValidationError('Passwords does not match')
+    # def validate_password(self, password):
+    #     if password == self.initial_data.get('confirm_password'):
+    #         return password
+    #     raise serializers.ValidationError('Passwords does not match')
 
 
 class FarmCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Farm
-        fields = ['name']
+        fields = [
+            'name',
+            'description',
+            'location'
+        ]
 
     def create(self, validated_data):
         validated_data['id'] = (uuid.uuid4())
@@ -117,24 +121,24 @@ class ListAllVegetablesSerializer(serializers.ModelSerializer):
 
 class UserFarmListSerializer(serializers.ModelSerializer):
     farm_name = serializers.CharField(source='farm.name')
-    vegetable_name = serializers.SerializerMethodField()
-    days_remaining = serializers.SerializerMethodField()
+    vegetable = serializers.SerializerMethodField()
+    # days_remaining = serializers.SerializerMethodField()
 
     class Meta:
         model = UserFarmLink
         fields = [
             'id',
             'farm_name',
-            'vegetable_name',
-            'days_remaining',
+            'vegetable'
         ]
 
-    def get_vegetable_name(self, obj):
-        return obj.farm.farm_vegetable_link_farm.first().vegetable.name
+    def get_vegetable(self,obj):
 
-    def get_days_remaining(self, obj):
-
-        return obj.farm.farm_vegetable_link_farm.first().vegetable.time_required
+        vegetable = {}
+        if obj.farm.farm_vegetable_link_farm.first() is not None:
+            vegetable['name'] = obj.farm.farm_vegetable_link_farm.first().vegetable.name
+            vegetable['time_require'] = obj.farm.farm_vegetable_link_farm.first().vegetable.time_required
+        return vegetable
 
 
 class VegetableCreateSerializer(serializers.ModelSerializer):
@@ -152,4 +156,23 @@ class VegetableCreateSerializer(serializers.ModelSerializer):
     def create(self, validate_data):
         validate_data['id'] = uuid.uuid4()
         return Vegetable.objects.create(**validate_data)
+
+
+from .models import UserFarmLink
+
+
+class FarmVegetableCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FarmVegetableLink
+        fields = [
+            'farm',
+            'vegetable'
+        ]
+
+    def create(self, validate_data):
+        user_farm_link_id = validate_data['farm']  # Assuming frontend sends user_farm_link id as farm
+        user_farm_link = UserFarmLink.objects.filter(id=user_farm_link_id).first()
+        farm_id = user_farm_link.farm
+        validate_data['farm'] = farm_id
+        return FarmVegetableLink.objects.create(**validate_data)
 
