@@ -13,5 +13,8 @@ urlpatterns = [
     path('vegetable/details/', views.VegetableDetails.as_view()),
     path('user/basic-details/', views.UserBasicDetails.as_view()),
     path('farm/vegetable-create/', views.FarmVegetableCreate.as_view()),
-    path('npk/', views.NPK.as_view())
+    path('farm/statistics/', views.FarmStatistics.as_view()),
+    path('farm/send/<str:farm_id>/', views.NPKSend.as_view()),
+    path('farm/post/<str:farm_id>/', views.NPKPost.as_view()),
+    path('npk/get/<str:farm_id>/', views.NPKReadings.as_view()),
 ]

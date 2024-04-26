@@ -121,6 +121,7 @@ class ListAllVegetablesSerializer(serializers.ModelSerializer):
 
 class UserFarmListSerializer(serializers.ModelSerializer):
     farm_name = serializers.CharField(source='farm.name')
+    farm_id = serializers.CharField(source='farm.id')
     vegetable = serializers.SerializerMethodField()
     # days_remaining = serializers.SerializerMethodField()
 
@@ -128,6 +129,7 @@ class UserFarmListSerializer(serializers.ModelSerializer):
         model = UserFarmLink
         fields = [
             'id',
+            'farm_id'
             'farm_name',
             'vegetable'
         ]

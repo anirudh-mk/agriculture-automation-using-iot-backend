@@ -74,3 +74,15 @@ class FarmVegetableLink(models.Model):
 
     class Meta:
         db_table = 'farm_vegetable_link'
+
+
+class FarmNPKLink(models.Model):
+    id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4())
+    n = models.CharField(max_length=20)
+    p = models.CharField(max_length=20)
+    k = models.CharField(max_length=20)
+    farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='farm_npk_link_farm')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'farm_npk_link'

@@ -1,6 +1,6 @@
 import uuid
 
-from django.db.models import Q, F
+from django.db.models import Q, F, Prefetch
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate
 from utils.response import CustomResponse
 from utils.permission import TokenGenerate, CustomizePermission
 
-from .models import User, Farm, UserFarmLink, Vegetable,FarmVegetableLink
+from .models import User, Farm, UserFarmLink, Vegetable, FarmVegetableLink, FarmNPKLink
 from .serializer import (UserCreateSerializer,
                          FarmCreateSerializer,
                          ListAllUsersSerializer,
@@ -17,6 +17,11 @@ from .serializer import (UserCreateSerializer,
                          UserFarmListSerializer,
                          VegetableCreateSerializer,
                          FarmVegetableCreateSerializer)
+
+
+from django.db.models import Prefetch
+
+from django.db.models import Prefetch
 
 
 class CreateUserAPI(APIView):
@@ -210,9 +215,67 @@ class FarmVegetableCreate(APIView):
         ).get_failure_response()
 
 
-class NPK(APIView):
+class NPKSend(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, farm_id):
+        farm_vegetable_link = FarmVegetableLink.objects.filter(id=farm_id, is_completed=0).first()
+        vegetable = Vegetable.objects.filter(id=farm_vegetable_link).values('n', 'p', 'k', 'time_required')
+
+
+class NPKPost(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, farm_id):
+
+        n = request.GET.get('n')
+        p = request.GET.get('p')
+        k = request.GET.get('k')
+
+        farm = Farm.objects.filter(id=farm_id).first()
+
+        FarmNPKLink.objects.create(
+            id=uuid.uuid4(),
+            n=n,
+            p=p,
+            k=k,
+            farm=farm
+        )
+
+        return CustomResponse(
+            general_message='success'
+        ).get_failure_response()
+
+class FarmStatistics(APIView):
+    authentication_classes = [CustomizePermission]
+
     def get(self, request):
-        value = request.GET.get('value')
-        print(value)
-        # Process the value if needed
-        return CustomResponse(response=value).get_success_response()
+        user_id = request.user.id
+
+        # Fetch UserFarmLink objects for the user
+        user_farm_links = UserFarmLink.objects.filter(user_id=user_id, is_completed=False)
+
+        # Prefetch related FarmVegetableLink objects and select related Vegetable objects
+        user_farm_links = user_farm_links.prefetch_related(
+            Prefetch('farm__farm_vegetable_link_farm', queryset=FarmVegetableLink.objects.select_related('vegetable'))
+        )
+
+        # Extract vegetable names and their creation dates from the prefetched data
+        vegetable_info = []
+        for link in user_farm_links:
+            for farm_vegetable_link in link.farm.farm_vegetable_link_farm.all():
+                vegetable_name = farm_vegetable_link.vegetable.name
+                creation_date = farm_vegetable_link.created_at.strftime('%Y-%m-%d')
+                vegetable_info.append({'name': vegetable_name, 'created_at': creation_date})
+
+        return CustomResponse(
+            response=vegetable_info
+        ).get_success_response()
+
+
+class NPKReadings(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, farm_id):
+        farm_npk_link = FarmNPKLink.objects.filter(farm=farm_id).all().values()
+        return CustomResponse(response=farm_npk_link).get_success_response()
